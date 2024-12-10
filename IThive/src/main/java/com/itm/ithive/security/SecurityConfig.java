@@ -37,7 +37,7 @@ public class SecurityConfig {
             "/api/v1/auth/**",
             "/login",
             "/users/**",
-            "/listUsers",
+            "/listUsers"
     };
 
 
