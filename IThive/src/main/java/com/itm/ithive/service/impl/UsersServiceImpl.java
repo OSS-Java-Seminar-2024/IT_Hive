@@ -1,28 +1,32 @@
 package com.itm.ithive.service.impl;
 
 
+import com.itm.ithive.exceptions.SomethingWrong;
+import com.itm.ithive.exceptions.UserAlreadyExisting;
 import com.itm.ithive.model.Enums.Role;
 import com.itm.ithive.model.Enums.Status;
 import com.itm.ithive.model.Users;
 import com.itm.ithive.repository.UsersRepository;
 import com.itm.ithive.service.UsersService;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class UsersServiceImpl implements UsersService {
 
-    private final UsersRepository usersRepository;
+    @Autowired
+    private UsersRepository usersRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
 
     @Override
     public Users createUsers(Users user) {
@@ -31,14 +35,13 @@ public class UsersServiceImpl implements UsersService {
 
 
     @Override
-    public Users registerUser(Users user) {
+    public Users registerUser(Users user) throws UserAlreadyExisting {
         if (user == null) {
-            return new Users();
-            // throw an exception
+            throw new SomethingWrong("Something's wrong come back in a minute");
         }
-        if (!(usersRepository.findByUsername(user.getUsername()).isEmpty())) {
-            return new Users();
-            // throw an exception
+        if (usersRepository.findByUsername(user.getUsername()).isPresent() ||
+                usersRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new UserAlreadyExisting("Credentials already existing, please try something else");
         }
 
         user.setStatus(Status.Default);
@@ -48,27 +51,16 @@ public class UsersServiceImpl implements UsersService {
         return usersRepository.save(user);
     }
 
-    @Override
-    public boolean authenticateUser(String username, String password) {
-        Optional<Users> user = findByUsername(username);
-
-        if (user.isPresent() && passwordEncoder.matches(password, user.get().getPassword())) {
-            System.out.println(password);
-//            UsernamePasswordAuthenticationToken authenticationToken =
-//                    new UsernamePasswordAuthenticationToken(username, password);
-//
-//            authenticationManager.authenticate(authenticationToken);
-//            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-            return true;
-        }
-
-        return false;
-    }
 
     @Override
     public List<Users> listAll() {
         return usersRepository.findAll();
         // make pagination
+    }
+
+    @Override
+    public Users findByID(String id) {
+        return usersRepository.findById(id).orElse(null);
     }
 
     public boolean checkPassword(Users user, String plainPassword) {
@@ -79,4 +71,7 @@ public class UsersServiceImpl implements UsersService {
         return usersRepository.findByUsername(username);
     }
 
+    public Optional<Users> findByEmail(String email) {
+        return usersRepository.findByEmail(email);
+    }
 }
