@@ -15,6 +15,21 @@
     <div th:replace="~{::blogs-container}"></div>
 </div>
 
+<!--Header fragment-->
+<div th:fragment="navbar">
+    <header>
+        <h1>IThive</h1>
+        <nav>
+            <a href="#">Following</a>
+            <a href="#">Explore</a>
+            <a href="/profile">My Profile</a>
+            <form th:action="@{/logout}" method="post" style="display: inline;">
+            <button type="submit" class="logout-btn">Logout</button>
+        </form>
+        </nav>
+    </header>
+</div>
+
 <!-- Footer Fragment -->
 <div th:fragment="footer">
     <footer>
