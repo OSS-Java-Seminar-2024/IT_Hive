@@ -39,7 +39,7 @@ public class UsersServiceImpl implements UsersService {
             throw new UserAlreadyExisting("Credentials already existing, please try something else");
         }
 
-        if(checkEmail(user.getEmail())){
+        if(!checkEmail(user.getEmail())){
             throw new UserAlreadyExisting("Credentials are not valid, please try something else");
         }
 
